@@ -98,23 +98,23 @@
     ; primary current
     (q/stroke 255 0 0)
     (q/with-translation [260
-                         (+ 50 (/ (q/height) 2))]
+                         (+ 50 (/ (q/height) 2) (* mag 20))]
       (q/with-rotation [(/ Math/PI -2.0)]
-        (draw-arrow 40)))
+        (draw-arrow (* 40 mag))))
     (q/with-translation [520
-                         (+ 50 (/ (q/height) 2))]
+                         (- (+ 50 (/ (q/height) 2)) (* mag 20))]
       (q/with-rotation [(/ Math/PI 2.0)]
-        (draw-arrow 40)))
+        (draw-arrow (* 40 mag))))
     ; secondary current
     (q/stroke 255 0 0)
     (q/with-translation [560
-                         (+ 50 (/ (q/height) 2))]
-      (q/with-rotation [(/ Math/PI -2.0)]
-        (draw-arrow 40)))
-    (q/with-translation [820
-                         (+ 50 (/ (q/height) 2))]
+                         (+ 50 (/ (q/height) 2) (* mag -20))]
       (q/with-rotation [(/ Math/PI 2.0)]
-        (draw-arrow 40)))
+        (draw-arrow (* 40 mag))))
+    (q/with-translation [820
+                         (+ 50 (/ (q/height) 2) (* mag 20))]
+      (q/with-rotation [(/ Math/PI -2.0)]
+        (draw-arrow (* 40 mag))))
     ))
 
 
