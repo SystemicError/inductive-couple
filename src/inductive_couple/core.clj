@@ -31,13 +31,13 @@
      ; start and end terminals
      (if front
        (do
-         (q/stroke 48)
-         (q/line (- (/ winding-width -2.0) xr) 0
-                 (- (/ winding-width -2.0) xr) 100))
-       (do
          (q/stroke 208)
          (q/line (+ (* winding-width windings) xr) 0
-                 (+ (* winding-width windings) xr) 100)))
+                 (+ (* winding-width windings) xr) 100))
+       (do
+         (q/stroke 48)
+         (q/line (- (/ winding-width -2.0) xr) 0
+                 (- (/ winding-width -2.0) xr) 100)))
      ; recur for spiral segment
      (draw-coil winding-width xr yr windings front (map #(* % (/ Math/PI 180.0)) (range -180 (* windings 360))))))
   ([winding-width xr yr windings front angles]
@@ -48,20 +48,72 @@
          (draw-coil-segment winding-width xr yr (first angles) 0.01))
        (recur winding-width xr yr windings front (rest angles))))))
 
+(defn draw-arrow [x]
+  "Draws an arrow of length x, pointing to the right, centered on the origin."
+  (if (< 0 x)
+    (do
+      (q/line 0 0 x 0)
+      (q/line x 0 (- x 5) -5)
+      (q/line x 0 (- x 5) 5))))
+
 (defn draw-state [state]
   ; Clear the sketch by filling it with light-grey color.
   (q/background 255)
-  ; Move origin point to the center of the sketch.
-  (q/with-translation [(/ (q/width) 2)
+
+  (q/stroke-weight 10)
+  ; primary coil back
+  (q/with-translation [200
                        (/ (q/height) 2)]
-    (q/stroke-weight 10)
-    (draw-coil 40 20 50 5 true)
-    (draw-coil 40 20 50 5 false)))
+    (draw-coil 40 20 50 5 false))
+  ; secondary coil back
+  (q/with-translation [500
+                       (/ (q/height) 2)]
+    (draw-coil 40 20 50 5 false))
+
+  (q/stroke-weight 5)
+  ; magnetic field
+  (q/stroke 0 0 255)
+  (q/with-translation [100
+                       (/ (q/height) 2)]
+    (draw-arrow 700))
+
+  (q/stroke-weight 10)
+  ; primary coil front
+  (q/with-translation [200
+                       (/ (q/height) 2)]
+    (draw-coil 40 20 50 5 true))
+  ; secondary coil front
+  (q/with-translation [500
+                       (/ (q/height) 2)]
+    (draw-coil 40 20 50 5 true))
+
+  (q/stroke-weight 5)
+  ; primary current
+  (q/stroke 255 0 0)
+  (q/with-translation [160
+                       (+ 50 (/ (q/height) 2))]
+    (q/with-rotation [(/ Math/PI -2.0)]
+      (draw-arrow 40)))
+  (q/with-translation [420
+                       (+ 50 (/ (q/height) 2))]
+    (q/with-rotation [(/ Math/PI 2.0)]
+      (draw-arrow 40)))
+  ; secondary current
+  (q/stroke 255 0 0)
+  (q/with-translation [460
+                       (+ 50 (/ (q/height) 2))]
+    (q/with-rotation [(/ Math/PI -2.0)]
+      (draw-arrow 40)))
+  (q/with-translation [720
+                       (+ 50 (/ (q/height) 2))]
+    (q/with-rotation [(/ Math/PI 2.0)]
+      (draw-arrow 40)))
+  )
 
 
 (q/defsketch inductive-couple
   :title "Inductive Coupling"
-  :size [1024 500]
+  :size [900 500]
   ; setup function called only once, during sketch initialization.
   :setup setup
   ; update-state is called on each iteration before draw-state.
