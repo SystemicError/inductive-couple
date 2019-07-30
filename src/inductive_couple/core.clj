@@ -61,6 +61,41 @@
         (q/line x 0 (+ 5 x) -5)
         (q/line x 0 (+ 5 x) 5)))))
 
+(defn draw-curved-field-lines [x]
+  "Draws a curved magnetic field line."
+  (let [r 450
+        offset (+ 15 r)
+        delta (* (Math/abs x) 0.4)]
+    (q/ellipse-mode :radius)
+    (q/fill 0 0 0 0)
+    (q/arc 0 offset r r (- (/ Math/PI -2.0) delta) (+ (/ Math/PI -2.0) delta))
+    (q/arc 0 (* -1 offset) r r (- (/ Math/PI 2.0) delta) (+ (/ Math/PI 2.0) delta))
+    (if (< 0 x)
+      (do
+        (q/with-translation [(* (Math/cos (- (/ Math/PI 2.0) delta)) r)
+                             (- offset
+                                (* (Math/sin (- (/ Math/PI 2.0) delta)) r))]
+          (q/with-rotation [delta]
+            (draw-arrow 1)))
+        (q/with-translation [(* (Math/cos (- (/ Math/PI 2.0) delta)) r)
+                             (- (* (Math/sin (- (/ Math/PI 2.0) delta)) r)
+                                offset)]
+          (q/with-rotation [(* -1 delta)]
+            (draw-arrow 1)))))
+    (if (> 0 x)
+      (do
+        (q/with-translation [(* -1 (Math/cos (- (/ Math/PI 2.0) delta)) r)
+                             (- offset
+                                (* (Math/sin (- (/ Math/PI 2.0) delta)) r))]
+          (q/with-rotation [(* -1 delta)]
+            (draw-arrow -1)))
+        (q/with-translation [(* -1 (Math/cos (- (/ Math/PI 2.0) delta)) r)
+                             (- (* (Math/sin (- (/ Math/PI 2.0) delta)) r)
+                                offset)]
+          (q/with-rotation [delta]
+            (draw-arrow -1)))))
+    ))
+
 (defn draw-state [state]
   (let [t (:time state)
         mag (Math/cos t)]
@@ -83,6 +118,18 @@
     (q/with-translation [(- 400 (/ (* 700 mag) 2))
                          (/ (q/height) 2)]
       (draw-arrow (* 700 mag)))
+    (q/with-translation [400
+                         (/ (q/height) 2)]
+      (draw-curved-field-lines mag))
+    ; induced magnetic field
+    (q/stroke 0 255 0)
+    (q/with-translation [(- 700 (/ (* -200 mag) 2))
+                         (+ -20 (/ (q/height) 2))]
+      (draw-arrow (* -200 mag)))
+    (q/with-translation [(- 700 (/ (* -200 mag) 2))
+                         (+ 20 (/ (q/height) 2))]
+      (draw-arrow (* -200 mag)))
+
 
     (q/stroke-weight 10)
     ; primary coil front
@@ -120,7 +167,7 @@
 
 (q/defsketch inductive-couple
   :title "Inductive Coupling"
-  :size [900 500]
+  :size [900 200]
   ; setup function called only once, during sketch initialization.
   :setup setup
   ; update-state is called on each iteration before draw-state.
