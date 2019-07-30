@@ -11,7 +11,7 @@
 
 (defn update-state [state]
   ; Update sketch state by changing circle color and position.
-  {:time (inc (:time state))})
+  {:time (+ (:time state) 0.05)})
 
 (defn coil [winding-width xr yr t]
   "Parameterization of coil."
@@ -39,7 +39,7 @@
          (q/line (- (/ winding-width -2.0) xr) 0
                  (- (/ winding-width -2.0) xr) 100)))
      ; recur for spiral segment
-     (draw-coil winding-width xr yr windings front (map #(* % (/ Math/PI 180.0)) (range -180 (* windings 360))))))
+     (draw-coil winding-width xr yr windings front (map #(* % (/ Math/PI 180.0)) (range -180 (* windings 360) 4)))))
   ([winding-width xr yr windings front angles]
    (if (not (empty? angles))
      (do
@@ -54,61 +54,68 @@
     (do
       (q/line 0 0 x 0)
       (q/line x 0 (- x 5) -5)
-      (q/line x 0 (- x 5) 5))))
+      (q/line x 0 (- x 5) 5))
+    (if (> 0 x)
+      (do
+        (q/line 0 0 x 0)
+        (q/line x 0 (+ 5 x) -5)
+        (q/line x 0 (+ 5 x) 5)))))
 
 (defn draw-state [state]
-  ; Clear the sketch by filling it with light-grey color.
-  (q/background 255)
+  (let [t (:time state)
+        mag (Math/cos t)]
+    ; Clear the sketch by filling it with light-grey color.
+    (q/background 255)
 
-  (q/stroke-weight 10)
-  ; primary coil back
-  (q/with-translation [200
-                       (/ (q/height) 2)]
-    (draw-coil 40 20 50 5 false))
-  ; secondary coil back
-  (q/with-translation [500
-                       (/ (q/height) 2)]
-    (draw-coil 40 20 50 5 false))
+    (q/stroke-weight 10)
+    ; primary coil back
+    (q/with-translation [300
+                         (/ (q/height) 2)]
+      (draw-coil 40 20 50 5 false))
+    ; secondary coil back
+    (q/with-translation [600
+                         (/ (q/height) 2)]
+      (draw-coil 40 20 50 5 false))
 
-  (q/stroke-weight 5)
-  ; magnetic field
-  (q/stroke 0 0 255)
-  (q/with-translation [100
-                       (/ (q/height) 2)]
-    (draw-arrow 700))
+    (q/stroke-weight 5)
+    ; magnetic field
+    (q/stroke 0 0 255)
+    (q/with-translation [(- 400 (/ (* 700 mag) 2))
+                         (/ (q/height) 2)]
+      (draw-arrow (* 700 mag)))
 
-  (q/stroke-weight 10)
-  ; primary coil front
-  (q/with-translation [200
-                       (/ (q/height) 2)]
-    (draw-coil 40 20 50 5 true))
-  ; secondary coil front
-  (q/with-translation [500
-                       (/ (q/height) 2)]
-    (draw-coil 40 20 50 5 true))
+    (q/stroke-weight 10)
+    ; primary coil front
+    (q/with-translation [300
+                         (/ (q/height) 2)]
+      (draw-coil 40 20 50 5 true))
+    ; secondary coil front
+    (q/with-translation [600
+                         (/ (q/height) 2)]
+      (draw-coil 40 20 50 5 true))
 
-  (q/stroke-weight 5)
-  ; primary current
-  (q/stroke 255 0 0)
-  (q/with-translation [160
-                       (+ 50 (/ (q/height) 2))]
-    (q/with-rotation [(/ Math/PI -2.0)]
-      (draw-arrow 40)))
-  (q/with-translation [420
-                       (+ 50 (/ (q/height) 2))]
-    (q/with-rotation [(/ Math/PI 2.0)]
-      (draw-arrow 40)))
-  ; secondary current
-  (q/stroke 255 0 0)
-  (q/with-translation [460
-                       (+ 50 (/ (q/height) 2))]
-    (q/with-rotation [(/ Math/PI -2.0)]
-      (draw-arrow 40)))
-  (q/with-translation [720
-                       (+ 50 (/ (q/height) 2))]
-    (q/with-rotation [(/ Math/PI 2.0)]
-      (draw-arrow 40)))
-  )
+    (q/stroke-weight 5)
+    ; primary current
+    (q/stroke 255 0 0)
+    (q/with-translation [260
+                         (+ 50 (/ (q/height) 2))]
+      (q/with-rotation [(/ Math/PI -2.0)]
+        (draw-arrow 40)))
+    (q/with-translation [520
+                         (+ 50 (/ (q/height) 2))]
+      (q/with-rotation [(/ Math/PI 2.0)]
+        (draw-arrow 40)))
+    ; secondary current
+    (q/stroke 255 0 0)
+    (q/with-translation [560
+                         (+ 50 (/ (q/height) 2))]
+      (q/with-rotation [(/ Math/PI -2.0)]
+        (draw-arrow 40)))
+    (q/with-translation [820
+                         (+ 50 (/ (q/height) 2))]
+      (q/with-rotation [(/ Math/PI 2.0)]
+        (draw-arrow 40)))
+    ))
 
 
 (q/defsketch inductive-couple
